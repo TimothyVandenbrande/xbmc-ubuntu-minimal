@@ -6,7 +6,7 @@
 # @version  2.7
 #
 
-XBMC_USER="xbmc"
+XBMC_USER=$(whoami)
 THIS_FILE=$0
 SCRIPT_VERSION="2.7"
 VIDEO_DRIVER=""

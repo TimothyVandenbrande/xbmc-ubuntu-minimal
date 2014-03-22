@@ -40,6 +40,8 @@ RSYSLOG_FILE="/etc/init/rsyslog.conf"
 POWERMANAGEMENT_DIR="/var/lib/polkit-1/localauthority/50-local.d/"
 DOWNLOAD_URL="https://github.com/Bram77/xbmc-ubuntu-minimal/raw/master/12.10/download/"
 XBMC_PPA="ppa:team-xbmc/ppa"
+XBMC_PPA_UNSTABLE="ppa:team-xbmc/unstable"
+XBMC_PPA_NIGHTLY="ppa:team-xbmc/xbmc-nightly"
 HTS_TVHEADEND_PPA="ppa:jabbors/hts-stable"
 OSCAM_PPA="ppa:oscam/ppa"
 
@@ -295,8 +297,58 @@ function addUserToRequiredGroups()
 
 function addXbmcPpa()
 {
+    cmd=(dialog --title "Install XBMC Repository" \
+                --backtitle "$SCRIPT_TITLE" \
+        --radiolist "Choose you prefered XBMC repository"
+        15 $DIALOG_WIDTH 6)
+
+   options=(1 "Stable PPA (confirm with ENTER)" on
+            2 "Unstable PPA" off
+            3 "Nightly PPA" off)
+
+choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+
+    case ${choice//\"/} in
+        1)
+                addXbmcPpaStable
+            ;;
+        2)
+                addXbmcPpaUnstable
+            ;;
+        3)
+                addXbmcPpaNightly
+            ;;
+        *)
+                addXbmcPpa
+            ;;
+     esac
+}
+
+
+function addXbmcPpaStable()
+{
     showInfo "Adding official team-xbmc PPA..."
-	IS_ADDED=$(addRepository "$XBMC_PPA")
+        IS_ADDED=$(addRepository "$XBMC_PPA")
+}
+
+function addXbmcPpaUnstable()
+{
+    showInfo "Adding official unstable team-xbmc PPA..."
+        IS_ADDED=$(addRepository "$XBMC_PPA_UNSTABLE")
+}
+
+function addXbmcPpaNighlty()
+{
+    showInfo "Adding official nightly team-xbmc PPA..."
+        IS_ADDED=$(addRepository "$XBMC_PPA_NIGHTLY")
+}
+
+function distUpgrade()
+{
+    showInfo "Updating Ubuntu with latest packages (may take a while)..."
+        update
+        sudo apt-get -y dist-upgrade > /dev/null 2>&1
+        showInfo "Ubuntu installation updated"
 }
 
 function distUpgrade()
